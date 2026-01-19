@@ -413,22 +413,12 @@ void showFrequency(bool cleanDisplay = false)
     prevLen = len;
 }
 
-//This function is called by station seek logic
+//This function is called by station seek logic 
+//Fix Frequency Show and onther Bug in fucnction
 void showFrequencySeek(uint16_t freq)
 {
-    g_currentFrequency = freq;
-    delay(10);
-    if (g_currentMode == FM)
-    {
-        //Fix random 10th KHz fraction
-        freq = (freq / 10) * 10;
-        g_currentFrequency = freq;
-        g_si4735.setFrequency(g_currentFrequency);
-    }
-    else
-        g_currentFrequency = g_si4735.getFrequency();
-
-    g_bandList[g_bandIndex].currentFreq = g_currentFrequency;
+    g_currentFrequency = g_si4735.getFrequency();
+   delay(10);
     showFrequency();
 }
 
@@ -437,8 +427,11 @@ bool checkStopSeeking()
     return g_seekStop || !(PINC & (1 << (ENCODER_BUTTON - 14)));
 }
 
+
 void doSeek()
 {
+    g_si4735.setAudioMute(true); //Mute when Seek
+   
     if (g_seekDirection)
         g_si4735.frequencyUp();
     else
@@ -450,6 +443,10 @@ void doSeek()
 #endif
     g_seekStop = false;
     g_si4735.seekStationProgress(showFrequencySeek, checkStopSeeking, g_seekDirection);
+  
+   g_currentFrequency = g_si4735.getFrequency();
+  showStatus(true);
+    g_si4735.setAudioMute(false);
 }
 
 //Update and draw main screen UI. 
@@ -1060,7 +1057,7 @@ void applyBandConfiguration(bool extraSSBReset = false)
             g_bandList[g_bandIndex].currentFreq,
             g_tabStepFM[g_bandList[g_bandIndex].currentStepIdx]);
         g_si4735.setSeekFmLimits(g_bandList[g_bandIndex].minimumFreq, g_bandList[g_bandIndex].maximumFreq);
-        g_si4735.setSeekFmSpacing(1);
+        g_si4735.setSeekFmSpacing(5); //Seek function can identify and stop at stations with 50 kHz spacing.
         g_ssbLoaded = false;
 #if USE_RDS
         setRDSConfig(g_Settings[SettingsIndex::RDSError].param);
@@ -1148,7 +1145,7 @@ void doStep(int8_t v)
 
         g_si4735.setFrequencyStep(g_tabStepFM[g_FMStepIndex]);
         g_bandList[g_bandIndex].currentStepIdx = g_FMStepIndex;
-        g_si4735.setSeekFmSpacing(1);
+        g_si4735.setSeekFmSpacing(5); //Seek function can identify and stop at stations with 50 kHz spacing.  
         showStep();
     }
     else

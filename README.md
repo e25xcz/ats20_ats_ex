@@ -1,5 +1,5 @@
 # ATS_EX Firmware for ATS-20 DSP Receiver
-### Руководство на русском языке можно прочитать здесь (Russian README is here) :
+### Руководство на русском языке можно прочитать здесь (Russian README is here) 
 [>>> Ссылка на русский README. <<<](/rus/README.md)
 
 ## Basic description
